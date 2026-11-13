@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Claude in our design process</title>
+<style>
+/* ---------- WTW brand tokens (2026 palette) ---------- */
+:root{
+  --uv-950:#1E0034; --uv-850:#35035A; --uv-750:#521380; --uv-600:#7F35B2; --uv-275:#D0A8EC; --uv-50:#F9F2FE;
+  --gm-50:#F2F3F4; --gm-125:#E0E1E3; --gm-250:#BEBFC1; --gm-600:#5C5D5F;
+  --fireworks:#D124B8; --coral:#F75784; --stratosphere:#327FEF; --infinity:#51E0D0; --submarine:#FFC144; --mandarin:#FF9434;
+  --error:#B2242E; --success:#1F856A; --warning-50:#FFF3D9; --success-50:#E9F7F2; --error-50:#FFF0F0;
+
+  --bg:#FFFFFF; --bg-alt:var(--gm-50); --surface:#FFFFFF;
+  --text:#000000; --text-2:var(--gm-600); --head:var(--uv-750);
+  --line:var(--gm-125); --line-strong:var(--gm-250);
+  --accent:var(--uv-750); --accent-soft:var(--uv-50);
+  --focus:var(--stratosphere);
+
+  --pill-bg:var(--gm-50); --pill-text:#000; --pill-line:var(--gm-250);
+  --skill-bg:var(--uv-50); --skill-text:var(--uv-750); --skill-line:var(--uv-275);
+  --opus-bg:var(--uv-850); --opus-text:#fff;
+  --sonnet-bg:var(--uv-600); --sonnet-text:#fff;
+  --haiku-bg:var(--gm-125); --haiku-text:#000;
+  --dot-line:var(--uv-750); --dot-on:var(--uv-750);
+
+  /* diagram */
+  --lane-a:#FFFFFF; --lane-b:var(--gm-50); --lane-line:var(--gm-125);
+  --gutter:var(--gm-125); --gutter-text:#000;
+  --n-po-fill:#FFFFFF; --n-po-stroke:var(--gm-600); --n-po-text:#000;
+  --n-design-fill:var(--uv-50); --n-design-stroke:var(--uv-600); --n-design-text:#000;
+  --n-dev-fill:var(--uv-850); --n-dev-stroke:var(--uv-850); --n-dev-text:#fff;
+  --n-dec-fill:var(--warning-50); --n-dec-stroke:#C48A00; --n-dec-text:#000;
+  --n-end-fill:var(--success-50); --n-end-stroke:var(--success); --n-end-text:#000;
+  --chip-fill:#FFFFFF; --chip-stroke:var(--gm-250); --chip-text:#000;
+  --chip-dev-fill:var(--uv-600); --chip-dev-stroke:var(--uv-275); --chip-dev-text:#fff;
+  --edge:#3b3b3d; --edge-yes:var(--success); --edge-no:var(--error);
+  --label-bg:rgba(255,255,255,.92);
+
+  --serif:"Times New Roman",Times,serif;
+  --sans:Arial,Helvetica,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#16002A; --bg-alt:#1E0034; --surface:#26083F;
+    --text:#FFFFFF; --text-2:#CFC6D8; --head:var(--uv-275);
+    --line:#3A1F57; --line-strong:#56397A;
+    --accent:var(--uv-275); --accent-soft:#2D0B4A;
+    --pill-bg:#2D0B4A; --pill-text:#fff; --pill-line:#56397A;
+    --skill-bg:#35035A; --skill-text:#fff; --skill-line:var(--uv-600);
+    --haiku-bg:#56397A; --haiku-text:#fff;
+    --dot-line:var(--uv-275); --dot-on:var(--uv-275);
+
+    --lane-a:#1A0030; --lane-b:#220A3A; --lane-line:#3A1F57;
+    --gutter:#35035A; --gutter-text:#fff;
+    --n-po-fill:#2B2B30; --n-po-stroke:#BEBFC1; --n-po-text:#fff;
+    --n-design-fill:#3E0F66; --n-design-stroke:var(--uv-275); --n-design-text:#fff;
+    --n-dev-fill:var(--uv-600); --n-dev-stroke:var(--uv-275); --n-dev-text:#fff;
+    --n-dec-fill:#FFF3D9; --n-dec-stroke:var(--submarine); --n-dec-text:#000;
+    --n-end-fill:#E9F7F2; --n-end-stroke:#4FCDA6; --n-end-text:#000;
+    --chip-fill:#26083F; --chip-stroke:var(--uv-275); --chip-text:#fff;
+    --chip-dev-fill:var(--uv-850); --chip-dev-stroke:var(--uv-275); --chip-dev-text:#fff;
+    --edge:#E0D6EA; --edge-yes:#4FCDA6; --edge-no:#FF8D96;
+    --label-bg:rgba(22,0,42,.9);
+  }
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;margin:0;color:var(--head);line-height:1.12}
+h2{font-size:clamp(30px,3.6vw,44px);letter-spacing:-.01em}
+h3{font-size:22px}
+h4{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text);margin:0 0 4px}
+p{margin:0 0 12px;max-width:68ch}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.wrap-wide{max-width:1560px;margin:0 auto;padding:0 28px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--text-2)}
+code,.mono{font-family:Consolas,"Courier New",monospace;font-size:.92em}
+
+/* ---------- top nav ---------- */
+.topnav{position:sticky;top:0;z-index:50;background:var(--uv-850);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
+.topnav .wrap-wide{display:flex;align-items:center;gap:28px;height:56px}
+.brand{font-family:var(--serif);font-size:19px;font-weight:700;color:#fff;text-decoration:none;white-space:nowrap}
+.navlinks{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{color:#fff;text-decoration:none;font-size:14px;padding:8px 12px;border-radius:4px;white-space:nowrap;border-bottom:2px solid transparent}
+.navlinks a:hover{background:rgba(255,255,255,.1)}
+.navlinks a[aria-current="true"]{border-bottom-color:var(--uv-275);background:rgba(255,255,255,.08)}
+
+/* ---------- hero ---------- */
+.hero{background:var(--uv-850);color:#fff;position:relative;overflow:hidden}
+@media (prefers-color-scheme:dark){.hero{background:var(--uv-950)}}
+.hero .motif{position:absolute;right:-60px;top:-40px;width:760px;height:520px;opacity:.9;pointer-events:none}
+.hero .wrap-wide{position:relative;padding-top:72px;padding-bottom:0}
+.hero h1{color:#fff;font-size:clamp(44px,6.4vw,88px);letter-spacing:-.02em;max-width:12ch}
+.hero .lede{font-size:19px;line-height:1.5;max-width:60ch;margin:24px 0 8px;color:#fff}
+.hero .own{font-family:var(--serif);font-size:22px;max-width:44ch;margin:20px 0 0;color:var(--uv-275);line-height:1.3}
+.hero .checked{font-size:13px;color:var(--uv-275);margin:28px 0 0;max-width:none}
+.rail{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:48px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.22)}
+.rail li{border-right:1px solid rgba(255,255,255,.14)}
+.rail li:last-child{border-right:0}
+.rail a{display:block;padding:18px 18px 22px;color:#fff;text-decoration:none;height:100%}
+.rail a:hover{background:rgba(255,255,255,.07)}
+.rail .num{display:block;font-family:var(--serif);font-size:34px;line-height:1;color:var(--uv-275)}
+.rail .nm{display:block;font-family:var(--serif);font-size:20px;margin:8px 0 4px;font-weight:700}
+.rail .ow{display:block;font-size:13px;color:#E8DAF5;line-height:1.4}
+.rail .once{font-size:12px;color:var(--uv-275)}
+
+/* ---------- sections ---------- */
+section.block{padding:84px 0}
+section.alt{background:var(--bg-alt)}
+.sec-head{margin-bottom:36px}
+.sec-head p{font-size:18px;margin-top:14px;color:var(--text)}
+.sec-head .sub{color:var(--text-2);font-size:16px}
+
+/* ---------- flow diagram ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:10px 24px;margin:0 0 16px;padding:0;list-style:none;font-size:14px;align-items:center}
+.legend li{display:flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:22px;height:14px;border-radius:3px;border:2px solid}
+.sw.po{background:var(--n-po-fill);border-color:var(--n-po-stroke)}
+.sw.design{background:var(--n-design-fill);border-color:var(--n-design-stroke)}
+.sw.dev{background:var(--n-dev-fill);border-color:var(--n-dev-stroke)}
+.sw.dec{background:var(--n-dec-fill);border-color:var(--n-dec-stroke);transform:rotate(45deg) scale(.8);width:14px}
+.ln{display:inline-block;width:26px;height:0;border-top:3px solid}
+.ln.yes{border-color:var(--edge-yes)}
+.ln.no{border-color:var(--edge-no)}
+.ln.n{border-color:var(--edge)}
+.hint{margin-left:auto;color:var(--text-2)}
+.flow-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--lane-a)}
+.flow{display:block;width:100%;min-width:1180px;height:auto}
+.flow text{font-family:var(--sans)}
+.lane-a{fill:var(--lane-a)} .lane-b{fill:var(--lane-b)}
+.lane-sep{stroke:var(--lane-line);stroke-width:1.5}
+.gutter{fill:var(--gutter)}
+.lane-label{fill:var(--gutter-text);font-size:14px;font-weight:700;letter-spacing:.02em}
+.node{cursor:pointer;outline:none;transition:opacity .15s}
+.node .shape{stroke-width:2;transition:stroke-width .12s}
+.node:hover .shape{stroke-width:3}
+.node:focus-visible .shape,.node.is-active .shape{stroke:var(--focus);stroke-width:4}
+.node text.t{font-size:14px;font-weight:600}
+.n-po .shape{fill:var(--n-po-fill);stroke:var(--n-po-stroke)} .n-po text.t{fill:var(--n-po-text)}
+.n-design .shape{fill:var(--n-design-fill);stroke:var(--n-design-stroke)} .n-design text.t{fill:var(--n-design-text)}
+.n-dev .shape{fill:var(--n-dev-fill);stroke:var(--n-dev-stroke)} .n-dev text.t{fill:var(--n-dev-text)}
+.n-dec .shape{fill:var(--n-dec-fill);stroke:var(--n-dec-stroke)} .n-dec text.t{fill:var(--n-dec-text)}
+.n-end .shape{fill:var(--n-end-fill);stroke:var(--n-end-stroke)} .n-end text.t{fill:var(--n-end-text)}
+.chip rect{fill:var(--chip-fill);stroke:var(--chip-stroke);stroke-width:1}
+.chip text{fill:var(--chip-text);font-size:11px;font-weight:600}
+.n-dev .chip rect{fill:var(--chip-dev-fill);stroke:var(--chip-dev-stroke)}
+.n-dev .chip text{fill:var(--chip-dev-text)}
+.edge{fill:none;stroke-width:2.2;stroke:var(--edge);transition:opacity .15s}
+.edge.yes{stroke:var(--edge-yes)} .edge.no{stroke:var(--edge-no)}
+.mk-n{fill:var(--edge)} .mk-yes{fill:var(--edge-yes)} .mk-no{fill:var(--edge-no)}
+.elabel{font-size:13px;font-weight:700;transition:opacity .15s}
+.elabel.yes{fill:var(--edge-yes)} .elabel.no{fill:var(--edge-no)}
+.flow.has-sel .node:not(.is-active):not(.is-linked){opacity:.3}
+.flow.has-sel .edge:not(.is-linked),.flow.has-sel .elabel:not(.is-linked){opacity:.15}
+
+.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;margin-top:20px;padding:28px 32px;border:1px solid var(--line);border-left:6px solid var(--uv-600);border-radius:6px;background:var(--surface);min-height:190px}
+.detail h3{font-size:26px;margin-bottom:4px}
+.detail .owner{color:var(--text-2);font-size:14px;margin-bottom:12px}
+.detail .side h4{margin-top:14px}
+.detail .side h4:first-child{margin-top:0}
+.detail ul{margin:0;padding-left:18px;font-size:14px}
+.stepchips{display:flex;flex-wrap:wrap;gap:6px}
+.stepchips a{display:inline-block;padding:3px 10px;border:1px solid var(--skill-line);background:var(--skill-bg);color:var(--skill-text);border-radius:999px;font-size:13px;font-weight:700;text-decoration:none}
+.stepchips a:hover{text-decoration:underline}
+
+/* ---------- reference tabs ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid var(--line-strong);margin-bottom:28px}
+.tabs button{font:inherit;font-size:15px;font-weight:700;color:var(--text-2);background:none;border:0;border-bottom:4px solid transparent;margin-bottom:-2px;padding:12px 18px;cursor:pointer}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--uv-600)}
+.panel[hidden]{display:none}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}
+.cols.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.item h4{font-size:16px;margin-bottom:6px}
+.item p{font-size:15px}
+.item+.item{margin-top:0}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:14px 0;border-top:1px solid var(--line);align-items:start}
+.plist li:first-child{border-top:0}
+.plist p{margin:0;font-size:15px}
+ol.numbered{margin:0;padding-left:22px;max-width:76ch}
+ol.numbered li{padding:6px 0 6px 6px}
+ol.numbered li::marker{font-family:var(--serif);font-weight:700;color:var(--accent);font-size:1.15em}
+.rule{margin-top:28px;padding:18px 22px;background:var(--accent-soft);border-left:6px solid var(--uv-600);border-radius:4px;max-width:78ch}
+.rule b{display:block;margin-bottom:4px}
+
+/* ---------- pills ---------- */
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--pill-bg);color:var(--pill-text);border:1px solid var(--pill-line);white-space:nowrap}
+.pill.skill{background:var(--skill-bg);color:var(--skill-text);border-color:var(--skill-line);font-family:Consolas,"Courier New",monospace;font-weight:700}
+.pill.opus{background:var(--opus-bg);color:var(--opus-text);border-color:var(--opus-bg)}
+.pill.sonnet{background:var(--sonnet-bg);color:var(--sonnet-text);border-color:var(--sonnet-bg)}
+.pill.haiku{background:var(--haiku-bg);color:var(--haiku-text);border-color:var(--haiku-bg)}
+.pill.fable{background:var(--pill-bg);color:var(--text-2);border-style:dashed}
+.effort{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:4px 12px 4px 10px;border:1px solid var(--pill-line);border-radius:999px;background:var(--pill-bg);white-space:nowrap}
+.effort i{display:block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--dot-line)}
+.effort i.on{background:var(--dot-on)}
+.effort b{margin-left:4px;font-weight:700}
+
+/* ---------- figjam embed ---------- */
+.embed{position:relative;width:100%;aspect-ratio:16/9;min-height:360px;background:var(--surface);border-radius:6px;overflow:hidden}
+.embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ---------- foundations ---------- */
+.setup{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:64px}
+.setup .tags{margin-top:18px}
+.defs{margin:0;padding:0;list-style:none}
+.defs li{padding:18px 0;border-top:1px solid var(--line-strong)}
+.defs li:first-child{border-top:0;padding-top:0}
+.defs b{display:block;font-size:17px;margin-bottom:4px}
+.defs p{margin:0;font-size:15px}
+
+/* ---------- phases ---------- */
+.phase{padding:0}
+.phase-head{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:end;padding:60px 0 28px;border-bottom:3px solid var(--uv-850)}
+@media (prefers-color-scheme:dark){.phase-head{border-bottom-color:var(--uv-600)}}
+.phase-head .big{font-family:var(--serif);font-size:clamp(64px,9vw,120px);line-height:.85;font-weight:700;color:var(--uv-600)}
+.phase-head h2{margin-bottom:6px}
+.phase-head p{margin:0;font-size:18px}
+.owner-tag{font-size:14px;font-weight:700;padding:8px 14px;border:1px solid var(--line-strong);border-radius:4px;background:var(--surface);align-self:end;white-space:nowrap}
+.steps{list-style:none;margin:0;padding:0}
+.step{display:grid;grid-template-columns:76px minmax(0,1fr);gap:20px;padding:32px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .n{font-family:var(--serif);font-size:34px;font-weight:700;color:var(--uv-600);line-height:1}
+.step h3{margin-bottom:6px}
+.step .short{font-size:17px;margin-bottom:14px}
+.step details{margin-top:16px}
+.step summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--accent);padding:4px 0;list-style:none}
+.step summary::-webkit-details-marker{display:none}
+.step summary::before{content:"+";display:inline-block;width:18px;font-weight:700}
+.step details[open] summary::before{content:"\2212"}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:10px}
+.two-col p{font-size:15px;margin:0}
+.loop{margin-top:14px;font-size:14px;padding:8px 12px;border-left:4px solid var(--edge-no);background:var(--error-50);color:#000;max-width:68ch;border-radius:0 4px 4px 0}
+@media (prefers-color-scheme:dark){.loop{background:#3A1020;color:#fff}}
+.toolbar{display:flex;justify-content:flex-end;gap:10px;padding:18px 0 0}
+.toolbar button{font:inherit;font-size:14px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line-strong);border-radius:4px;padding:8px 14px;cursor:pointer}
+.toolbar button:hover{background:var(--accent-soft)}
+.step:target{background:var(--accent-soft);box-shadow:-20px 0 0 var(--accent-soft),20px 0 0 var(--accent-soft)}
+
+/* ---------- automation ---------- */
+.auto{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.auto .col{padding-top:16px;border-top:4px solid var(--uv-600)}
+.auto h3{font-size:22px;margin-bottom:14px}
+.auto .item{margin-bottom:16px}
+.skillrow{padding:12px 0;border-top:1px solid var(--line)}
+.skillrow p{margin:8px 0 0;font-size:14px}
+
+/* ---------- measure / decisions ---------- */
+.two-panels{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.panel-card{padding:32px;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.panel-card.dark{background:var(--uv-850);color:#fff;border-color:var(--uv-850)}
+.panel-card.dark h2,.panel-card.dark h3{color:#fff}
+.panel-card.dark .muted{color:var(--uv-275)}
+.panel-card ul{margin:0;padding-left:20px}
+.panel-card li{padding:4px 0}
+.panel-card .item{margin-bottom:14px}
+footer{background:var(--uv-850);color:#E8DAF5;padding:36px 0;font-size:14px}
+footer a{color:#fff}
+@media (prefers-color-scheme:dark){footer{background:var(--uv-950)}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .rail{grid-template-columns:repeat(3,1fr)}
+  .rail li{border-bottom:1px solid rgba(255,255,255,.14)}
+  .auto{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  .wrap,.wrap-wide{padding:0 18px}
+  section.block{padding:60px 0}
+  .detail,.setup,.two-panels,.two-col,.cols,.cols.two,.auto{grid-template-columns:1fr}
+  .detail{padding:22px}
+  .phase-head{grid-template-columns:1fr;gap:12px}
+  .step{grid-template-columns:1fr;gap:6px}
+  .plist li{grid-template-columns:1fr;gap:6px}
+  .rail{grid-template-columns:repeat(2,1fr)}
+  .hero .motif{opacity:.35}
+  .hint{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav" aria-label="Page sections">
+  <div class="wrap-wide">
+    <a class="brand" href="#top">Claude in our design process</a>
+    <div class="navlinks" id="navlinks">
+      <a href="#flow">Flow</a>
+      <a href="#board">Full board</a>
+      <a href="#before">Before you start</a>
+      <a href="#setup">Phase 00: Setup</a>
+      <a href="#phase-1">Phases 01 to 05</a>
+      <a href="#automation">Automation</a>
+      <a href="#measure">Measure and decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <svg class="motif" viewBox="0 0 760 520" aria-hidden="true" fill="none" stroke-linecap="round">
+    <path d="M20 470 C 180 470, 220 250, 380 230 S 600 160, 760 40" stroke="#D0A8EC" stroke-width="2" opacity=".75"/>
+    <path d="M0 430 C 160 440, 230 220, 390 200 S 610 120, 760 10" stroke="#D124B8" stroke-width="2" opacity=".7"/>
+    <path d="M40 500 C 210 490, 250 290, 410 260 S 620 210, 760 90" stroke="#F75784" stroke-width="2" opacity=".7"/>
+    <path d="M-20 390 C 140 400, 210 190, 370 170 S 590 80, 760 -30" stroke="#7F35B2" stroke-width="2" opacity=".9"/>
+    <path d="M60 520 C 240 510, 280 330, 440 290 S 640 260, 760 150" stroke="#D0A8EC" stroke-width="1.5" opacity=".45"/>
+  </svg>
+  <div class="wrap-wide">
+    <h1>Claude in our design process</h1>
+    <p class="lede">A working playbook for designers. For each step: which Claude tool to use, which model and effort level, why, and what you still own.</p>
+    <p class="own">Designers own the UI layer. Developers own everything that makes it work.</p>
+    <p class="checked">Models and effort levels checked Nov 5, 2026 against Anthropic docs. They change often, so re-check the model and effort guidance every quarter.</p>
+    <ol class="rail" aria-label="The five phases">
+      <li><a href="#setup"><span class="num">00</span><span class="nm">Set up</span><span class="ow">Design and dev together</span><span class="once">Do this once</span></a></li>
+      <li><a href="#phase-1"><span class="num">01</span><span class="nm">Discover</span><span class="ow">Design, with PO</span></a></li>
+      <li><a href="#phase-2"><span class="num">02</span><span class="nm">Define and explore</span><span class="ow">Design</span></a></li>
+      <li><a href="#phase-3"><span class="num">03</span><span class="nm">Prototype</span><span class="ow">Design builds, Dev advises</span></a></li>
+      <li><a href="#phase-4"><span class="num">04</span><span class="nm">Validate</span><span class="ow">Design, PO approves</span></a></li>
+      <li><a href="#phase-5"><span class="num">05</span><span class="nm">Handoff and build</span><span class="ow">Dev leads, Design supports</span></a></li>
+    </ol>
+  </div>
+</header>
+
+<main>
+<!-- ===================== FLOW ===================== -->
+<section class="block" id="flow" aria-labelledby="flow-h">
+  <div class="wrap-wide">
+    <div class="sec-head">
+      <h2 id="flow-h">From ticket to done</h2>
+      <p>Every feature follows the same route: the PO writes a story, design scopes and prototypes it, and developers integrate it once the PO approves. Select any step to see what happens there and which playbook steps it maps to.</p>
+    </div>
+
+    <ul class="legend" aria-label="Diagram key">
+      <li><span class="sw po"></span>Product Owner</li>
+      <li><span class="sw design"></span>Design</li>
+      <li><span class="sw dev"></span>Development</li>
+      <li><span class="sw dec"></span>Decision</li>
+      <li><span class="ln yes"></span>Yes</li>
+      <li><span class="ln no"></span>No: loops back</li>
+      <li class="hint">Select a step. On small screens, scroll the diagram sideways.</li>
+    </ul>
+
+    <div class="flow-scroll">
+    <svg class="flow" id="flowSvg" viewBox="0 0 1720 620" role="group" aria-label="Process flowchart. Select a step for details.">
+      <defs>
+        <marker id="ah-n" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="mk-n"/></marker>
+        <marker id="ah-yes" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="mk-yes"/></marker>
+        <marker id="ah-no" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="mk-no"/></marker>
+      </defs>
+
+      <!-- lanes -->
+      <rect class="lane-a" x="0" y="0" width="1720" height="170"/>
+      <rect class="lane-b" x="0" y="170" width="1720" height="240"/>
+      <rect class="lane-a" x="0" y="410" width="1720" height="210"/>
+      <line class="lane-sep" x1="0" y1="170" x2="1720" y2="170"/>
+      <line class="lane-sep" x1="0" y1="410" x2="1720" y2="410"/>
+      <rect class="gutter" x="0" y="0" width="40" height="620"/>
+      <line class="lane-sep" x1="0" y1="170" x2="40" y2="170" style="stroke:var(--bg)"/>
+      <line class="lane-sep" x1="0" y1="410" x2="40" y2="410" style="stroke:var(--bg)"/>
+      <text class="lane-label" transform="translate(25 85) rotate(-90)" text-anchor="middle">Product Owner</text>
+      <text class="lane-label" transform="translate(25 290) rotate(-90)" text-anchor="middle">Design</text>
+      <text class="lane-label" transform="translate(25 515) rotate(-90)" text-anchor="middle">Development</text>
+
+      <!-- edges -->
+      <path class="edge" data-from="ticket" data-to="scope" d="M125 123 V290 H222" marker-end="url(#ah-n)"/>
+      <path class="edge" data-from="scope" data-to="proto" d="M378 290 H417" marker-end="url(#ah-n)"/>
+      <path class="edge" data-from="proto" data-to="deploy" d="M573 290 H612" marker-end="url(#ah-n)"/>
+      <path class="edge" data-from="deploy" data-to="vqa" d="M768 290 H807" marker-end="url(#ah-n)"/>
+      <path class="edge" data-from="vqa" data-to="qa1" d="M963 290 H995" marker-end="url(#ah-n)"/>
+      <path class="edge no" data-from="qa1" data-to="proto" data-label="No" d="M1070 238 V205 H470 V240" marker-end="url(#ah-no)"/>
+      <path class="edge yes" data-from="qa1" data-to="po" data-label="Yes" d="M1145 290 H1168 V90 H1190" marker-end="url(#ah-yes)"/>
+      <path class="edge yes" data-from="po" data-to="handoff" data-label="Yes" d="M1265 142 V254" marker-end="url(#ah-yes)"/>
+      <path class="edge no" data-from="po" data-to="scope" data-label="No" d="M1265 38 V22 H300 V254" marker-end="url(#ah-no)"/>
+      <path class="edge" data-from="handoff" data-to="integ" d="M1265 326 V440" marker-end="url(#ah-n)"/>
+      <path class="edge" data-from="integ" data-to="qa2" d="M1343 500 H1375" marker-end="url(#ah-n)"/>
+      <path class="edge yes" data-from="qa2" data-to="close" data-label="Yes" d="M1525 500 H1565" marker-end="url(#ah-yes)"/>
+      <path class="edge no" data-from="qa2" data-to="integ" data-label="No: development-related" d="M1450 448 V425 H1310 V440" marker-end="url(#ah-no)"/>
+      <path class="edge no" data-from="qa2" data-to="proto" data-label="No: design-related" d="M1450 552 V585 H470 V340" marker-end="url(#ah-no)"/>
+
+      <!-- edge labels -->
+      <text class="elabel no" data-for="qa1>proto" x="770" y="197" text-anchor="middle">No</text>
+      <text class="elabel yes" data-for="qa1>po" x="1176" y="232">Yes</text>
+      <text class="elabel yes" data-for="po>handoff" x="1274" y="205">Yes</text>
+      <text class="elabel no" data-for="po>scope" x="780" y="15" text-anchor="middle">No: back to scoping</text>
+      <text class="elabel yes" data-for="qa2>close" x="1545" y="492" text-anchor="middle">Yes</text>
+      <text class="elabel no" data-for="qa2>integ" x="1458" y="438">No: development-related</text>
+      <text class="elabel no" data-for="qa2>proto" x="960" y="577" text-anchor="middle">No: design-related, back to the prototype</text>
+
+      <!-- nodes: product owner -->
+      <g class="node n-po" data-id="ticket" tabindex="0" role="button" aria-label="Ticket (story) from Project Owner">
+        <rect class="shape" x="55" y="67" width="140" height="56" rx="28"/>
+        <text class="t" text-anchor="middle"><tspan x="125" y="91">Ticket (story)</tspan><tspan x="125" y="108">from Project Owner</tspan></text>
+      </g>
+      <g class="node n-dec" data-id="po" tabindex="0" role="button" aria-label="Decision: PO or PM approves?">
+        <polygon class="shape" points="1265,38 1340,90 1265,142 1190,90"/>
+        <text class="t" text-anchor="middle"><tspan x="1265" y="87">PO/PM</tspan><tspan x="1265" y="104">approves?</tspan></text>
+      </g>
+
+      <!-- nodes: design -->
+      <g class="node n-design" data-id="scope" tabindex="0" role="button" aria-label="UX Design Lead scopes the feature">
+        <rect class="shape" x="222" y="254" width="156" height="72" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="300" y="286">UX Design Lead</tspan><tspan x="300" y="304">scopes the feature</tspan></text>
+      </g>
+      <g class="node n-design" data-id="proto" tabindex="0" role="button" aria-label="Vibe-code prototype, using Figma and PrimeNG components and tokens">
+        <rect class="shape" x="417" y="240" width="156" height="100" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="495" y="276">Vibe-code prototype</tspan></text>
+        <g class="chip"><rect x="430" y="298" width="54" height="22" rx="11"/><text x="457" y="313" text-anchor="middle">Figma</text></g>
+        <g class="chip"><rect x="490" y="298" width="70" height="22" rx="11"/><text x="525" y="313" text-anchor="middle">PrimeNG</text></g>
+      </g>
+      <g class="node n-design" data-id="deploy" tabindex="0" role="button" aria-label="Deploy to Vercel or Azure Static Web App">
+        <rect class="shape" x="612" y="254" width="156" height="72" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="690" y="277">Deploy to Vercel</tspan><tspan x="690" y="294">or Azure Static</tspan><tspan x="690" y="311">Web App</tspan></text>
+      </g>
+      <g class="node n-design" data-id="vqa" tabindex="0" role="button" aria-label="Visual QA: WCAG accessibility (UI related)">
+        <rect class="shape" x="807" y="254" width="156" height="72" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="885" y="277">Visual QA: WCAG</tspan><tspan x="885" y="294">accessibility</tspan><tspan x="885" y="311">(UI related)</tspan></text>
+      </g>
+      <g class="node n-dec" data-id="qa1" tabindex="0" role="button" aria-label="Decision: Visual QA passes?">
+        <polygon class="shape" points="1070,238 1145,290 1070,342 995,290"/>
+        <text class="t" text-anchor="middle"><tspan x="1070" y="287">Visual QA</tspan><tspan x="1070" y="304">passes?</tspan></text>
+      </g>
+      <g class="node n-design" data-id="handoff" tabindex="0" role="button" aria-label="Design hands off prototype with placeholder data">
+        <rect class="shape" x="1187" y="254" width="156" height="72" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="1265" y="277">Design hands off</tspan><tspan x="1265" y="294">prototype with</tspan><tspan x="1265" y="311">placeholder data</tspan></text>
+      </g>
+
+      <!-- nodes: development -->
+      <g class="node n-dev" data-id="integ" tabindex="0" role="button" aria-label="Developer: integration and logic, using Figma and PrimeNG components and tokens">
+        <rect class="shape" x="1187" y="440" width="156" height="120" rx="8"/>
+        <text class="t" text-anchor="middle"><tspan x="1265" y="468">Developer:</tspan><tspan x="1265" y="485">integration</tspan><tspan x="1265" y="502">and logic</tspan></text>
+        <g class="chip"><rect x="1200" y="518" width="54" height="22" rx="11"/><text x="1227" y="533" text-anchor="middle">Figma</text></g>
+        <g class="chip"><rect x="1260" y="518" width="70" height="22" rx="11"/><text x="1295" y="533" text-anchor="middle">PrimeNG</text></g>
+      </g>
+      <g class="node n-dec" data-id="qa2" tabindex="0" role="button" aria-label="Decision: WCAG and QA passes?">
+        <polygon class="shape" points="1450,448 1525,500 1450,552 1375,500"/>
+        <text class="t" text-anchor="middle"><tspan x="1450" y="497">WCAG/QA</tspan><tspan x="1450" y="514">passes?</tspan></text>
+      </g>
+      <g class="node n-end" data-id="close" tabindex="0" role="button" aria-label="Close ticket and mark as completed">
+        <rect class="shape" x="1565" y="472" width="130" height="56" rx="28"/>
+        <text class="t" text-anchor="middle"><tspan x="1630" y="496">Close ticket;</tspan><tspan x="1630" y="513">mark completed</tspan></text>
+      </g>
+    </svg>
+    </div>
+
+    <div class="detail" id="detail" aria-live="polite">
+      <div class="main">
+        <h3 id="d-title">The route in one pass</h3>
+        <p class="owner" id="d-owner">Three loops keep problems close to where they started</p>
+        <p id="d-text">A story becomes a scoped brief, then a working prototype on a preview URL. Visual QA and accessibility checks come first, then the PO approves. Design hands developers a prototype on placeholder data, and developers connect it to real data and logic. If QA finds a design problem it goes back to the prototype; a development problem goes back to integration. Figma and PrimeNG components and tokens feed both the prototype and the integration.</p>
+      </div>
+      <div class="side" id="d-side">
+        <h4>Try it</h4>
+        <p style="font-size:14px">Select a step to light up what comes before and after it. Each step links to the matching playbook steps below.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FIGJAM EMBED ===================== -->
+<section class="block" id="board" aria-labelledby="board-h">
+  <div class="wrap-wide">
+    <div class="sec-head">
+      <h2 id="board-h">The full board</h2>
+      <p>The original FigJam board the playbook and flowchart come from. Pan and zoom inside the frame, or open it in Figma.</p>
+    </div>
+    <div class="embed">
+      <iframe title="AI Process FigJam board" style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/board/UGjFB0de0eJa9WWRbuNhbx/AI-Process?node-id=0-1&embed-host=share" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BEFORE YOU START ===================== -->
+<section class="block alt" id="before" aria-labelledby="before-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="before-h">Before you start</h2>
+      <p>Read this once. These rules apply to every step below.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Before you start" id="tabs">
+      <button role="tab" id="tab-own" aria-controls="p-own" aria-selected="true">Who owns what</button>
+      <button role="tab" id="tab-model" aria-controls="p-model" aria-selected="false" tabindex="-1">Picking a model</button>
+      <button role="tab" id="tab-effort" aria-controls="p-effort" aria-selected="false" tabindex="-1">Picking effort</button>
+      <button role="tab" id="tab-tokens" aria-controls="p-tokens" aria-selected="false" tabindex="-1">Spend tokens where they matter</button>
+      <button role="tab" id="tab-tools" aria-controls="p-tools" aria-selected="false" tabindex="-1">Tools in this playbook</button>
+    </div>
+    <div id="panels"></div>
+  </div>
+</section>
+
+<!-- ===================== PHASE 00 ===================== -->
+<section class="block" id="setup" aria-labelledby="setup-h">
+  <div class="wrap">
+    <div class="setup">
+      <div>
+        <h2 id="setup-h">Phase 00: set up the foundations</h2>
+        <p style="font-size:18px;margin-top:14px">Do this once, before phase 01. Design and dev together, in Claude Code. One-time work where judgment matters. Without it, nothing in the phases holds up.</p>
+        <div class="tags"><span class="pill opus">Opus 5.5</span><span class="effort" role="img" aria-label="High effort"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><b>High effort</b></span><span class="pill">Claude Code</span></div>
+      </div>
+      <ul class="defs" id="setup-list"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PHASES ===================== -->
+<section class="alt" id="phases" aria-label="Phases 01 to 05">
+  <div class="wrap">
+    <div class="toolbar">
+      <button type="button" id="expandAll">Expand all details</button>
+      <button type="button" id="collapseAll">Collapse all details</button>
+    </div>
+    <div id="phase-mount"></div>
+  </div>
+</section>
+
+<!-- ===================== AUTOMATION ===================== -->
+<section class="block" id="automation" aria-labelledby="auto-h">
+  <div class="wrap-wide">
+    <div class="sec-head">
+      <h2 id="auto-h">Make the right model the default, not a decision</h2>
+      <p>Set up in phase 00. Designers should not have to memorize a model chart. Defaults and step skills turn this playbook from guidelines people forget into the way the tools actually behave: the right model for each step, predictable token use, and the same process for everyone.</p>
+    </div>
+    <div class="auto">
+      <div class="col">
+        <h3>1. Defaults for everyone</h3>
+        <div class="item"><h4>Where</h4><p>Org-wide managed settings (set by admins) plus a shared settings file in the repo.</p></div>
+        <div class="item"><h4>What</h4><p>Default model: opusplan, so everyday work runs on Sonnet 5.5 and planning switches to Opus 5.5 on its own. Default effort: Medium. Only approved models available. Effort capped at Extra high, so nobody burns usage on Max by accident.</p></div>
+        <div class="item"><h4>Why it matters</h4><p>Most of the work gets the right setup without anyone touching a setting.</p></div>
+      </div>
+      <div class="col">
+        <h3>2. One skill per step</h3>
+        <p style="font-size:15px">Each skill carries the instructions for its step and switches to the right model and effort while it runs. Then the session goes back to normal. Designers just type the name.</p>
+        <div id="skill-rows"></div>
+      </div>
+      <div class="col">
+        <h3>3. Guardrails built in</h3>
+        <div class="item"><h4>A person starts it, not Claude</h4><p>Skills that write outside the repo (opening PRs, filing bugs) can only be started by a designer. Claude drafts, you confirm.</p></div>
+        <div class="item"><h4>Reviewed like code</h4><p>Skills and settings live in the repo. Devs review changes in PRs, same as any other code.</p></div>
+        <div class="item"><h4>Stays current</h4><p>Skills point to model aliases (sonnet, opus), so they move to newer models automatically. Re-check the choices every quarter.</p></div>
+      </div>
+      <div class="col">
+        <h3>4. Where it does not reach</h3>
+        <p style="font-size:15px">Regular Claude chat cannot switch models from a skill. For research, synthesis and the brief (phase 01), designers still pick the model themselves.</p>
+        <div class="item"><h4>What we do there</h4><p>A shared Claude Project with a skill for the brief template and synthesis instructions, plus a one-line reminder of the right model. The "Picking a model" guidance stays the reference.</p></div>
+        <div class="item"><h4>Start small</h4><p>Five skills for the most frequent and expensive steps. Add more only when the pilot shows a real need.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MEASURE + DECISIONS ===================== -->
+<section class="block alt" id="measure" aria-labelledby="measure-h">
+  <div class="wrap">
+    <div class="two-panels">
+      <div class="panel-card">
+        <h2 id="measure-h" style="font-size:32px">How we will know it works</h2>
+        <p style="font-size:18px;margin-top:12px"><b>Measure handoff, not AI usage.</b></p>
+        <p>Baseline these before we start, then compare after the first few features:</p>
+        <ul>
+          <li>Time from approved design to merged UI</li>
+          <li>Visual QA rounds per feature</li>
+          <li>Dev hours spent translating UI</li>
+          <li>Design issues found after handoff</li>
+          <li>How much of our UI code devs had to rewrite</li>
+        </ul>
+        <p style="margin-top:16px">If devs end up rewriting most of our UI code, the process is not working, no matter how fast we prototype.</p>
+      </div>
+      <div class="panel-card dark">
+        <h2 style="font-size:32px">Decisions we still need</h2>
+        <p class="muted" style="margin-top:12px;font-size:16px">Phases 03 to 05 depend on these. Take them to the Design Lead and engineering.</p>
+        <div class="item"><h4 style="color:#fff">Storybook hosting</h4><p>Local only, or published (for example with Chromatic) so designers can use the Storybook MCP without running Storybook on their own machines.</p></div>
+        <div class="item"><h4 style="color:#fff">Prototype code</h4><p>Merged through a PR, or reference only? This playbook assumes PR. Reference-only keeps most of today's handoff friction.</p></div>
+        <div class="item"><h4 style="color:#fff">Claude Design</h4><p>Core step or optional? This playbook treats it as optional, to avoid a third source of design.</p></div>
+        <div class="item"><h4 style="color:#fff">Admin settings</h4><p>Which Claude tools and effort levels our org has enabled, and what Claude can write in Azure DevOps: read-only, or create work items and PRs. Plus who approves third-party skills like Impeccable, and the org-wide defaults: allowed models and the effort cap.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0;max-width:none">Source: the AI Process board in Figma. Models and effort levels checked Nov 5, 2026.
+      <a href="https://www.figma.com/board/UGjFB0de0eJa9WWRbuNhbx/AI-Process?node-id=117-778">Playbook</a> ·
+      <a href="https://www.figma.com/board/UGjFB0de0eJa9WWRbuNhbx/AI-Process?node-id=105-6736">Flowchart</a></p>
+  </div>
+</footer>
+
+<noscript><div class="wrap" style="padding:24px 28px"><p>The phase details, reference tabs and interactive diagram details need JavaScript. The flowchart above is still readable without it.</p></div></noscript>
+
+<script>
+/* ---------------- data ---------------- */
+const EFFORT = {low:1, medium:2, high:3, xhigh:4, max:5};
+const EFFORT_LABEL = {low:"Low effort", medium:"Medium effort", high:"High effort", xhigh:"Extra high effort", max:"Max effort"};
+
+const PHASES = [
+ {id:1, name:"Discover", tag:"Understand the problem before touching any UI.", owner:"Owner: Design, with PO", steps:[
+  {n:"1.1", title:"Desk research and competitive analysis", short:"Claude searches and compares public sources on how others solve the same problem.",
+   tools:["Claude · Research"], model:"Opus 5.5", effort:"high",
+   why:"Pulls and compares many sources at once. Opus is better at weighing conflicting evidence and telling you when it is weak.",
+   own:"Open the sources. Separate facts from Claude's interpretation. Drop anything you can't trace back."},
+  {n:"1.2", title:"Research synthesis", short:"Group interview notes, tickets and analytics into themes, then decide what matters.",
+   tools:["Claude · Project"], model:"Opus 5.5", effort:"high",
+   why:"Finding patterns across interviews, tickets and analytics is messy judgment work. This is where the bigger model pays off.",
+   own:"Claude clusters, you decide what matters. Check every quote against the transcript. Remove personal data before uploading."},
+  {n:"1.3", title:"Frame the problem (the brief)", short:"Turn the Azure DevOps story into a one-page brief the PO agrees to.",
+   tools:["Claude · Project","Azure DevOps"], model:"Sonnet 5.5", effort:"medium",
+   why:"Claude pulls the user story straight from Azure DevOps and turns it into a one-page brief (problem, users, constraints, success criteria, open questions). That is structured writing. Sonnet does it well for a fraction of the cost.",
+   own:"Get PO agreement on the brief and link it back to the work item. It feeds every step after this, including the code. A vague brief means vague code."}
+ ]},
+ {id:2, name:"Define and explore", tag:"Go wide fast, then commit in Figma.", owner:"Owner: Design", steps:[
+  {n:"2.1", title:"Flows, states and edge cases", short:"List every state a screen can be in, from empty and loading to error and no permission.",
+   tools:["Claude","Figma connector"], model:"Sonnet 5.5", effort:"high",
+   why:"AI is good at being exhaustive: empty, loading, error, permissions, long content. Higher effort means fewer missed cases. It can draw the flow straight into FigJam.",
+   own:"Cut cases that don't matter to users. Confirm role and permission rules with PO and devs."},
+  {n:"2.2", title:"Divergent concepts (optional)", short:"Generate a handful of quick HTML directions when the right direction is not yet clear.",
+   tools:["Claude Design"], model:"Sonnet 5.5", effort:"medium",
+   why:"Three to five real HTML directions in minutes, already using our design system (synced with /design-sync). Cheap to throw away. Skip it when the direction is already clear.",
+   own:"Pick based on the user problem, not on what looks newest. These are sketches, not specs."},
+  {n:"2.3", title:"Detailed design", short:"Finish the chosen direction in Figma using real design system components.",
+   tools:["Figma","Claude connector"], model:"Sonnet 5.5", effort:"low",
+   why:"Figma stays where craft and design system decisions happen. Use Claude only for the repetitive parts: layer naming, content variants, a11y annotations. Small change to an existing screen? Skip this step and go straight to phase 03.",
+   own:"Use real design system components so Code Connect can map them to code. Get a quick PO check on direction before any code: a frame is cheaper to change than a build."}
+ ]},
+ {id:3, name:"Prototype", tag:"Build the real UI, in our stack, on mock data.", owner:"Owner: Design builds, Dev advises", steps:[
+  {n:"3.1", title:"Start the feature", short:"Create a branch from the work item and load the brief, Figma link and edge cases.",
+   skills:["/start-feature"], tools:["Claude Code","Azure DevOps"], model:"Sonnet 5.5", effort:"low",
+   why:"Claude creates a branch from the work item and loads the brief, the Figma link and the edge cases from 2.1 into the session. Mechanical work, so keep it cheap.",
+   own:"If the design system changed since the last sync, re-run /design-sync first. The one-time setup lives in Phase 00."},
+  {n:"3.2", title:"Plan the build", short:"Opus maps the design to existing components and flags what is missing, before any code.",
+   skills:["/plan-build"], tools:["Claude Code · Plan mode"], model:"opusplan: Opus plans", effort:"medium",
+   why:"Set the model to opusplan. Opus maps the frames to existing components and flags what is missing, then Claude Code switches to Sonnet once you approve the plan. In VS Code you can comment on the plan before anything gets built.",
+   own:"Read the plan. If it invents a component we already have, stop and correct it before building."},
+  {n:"3.3", title:"Build the screens", short:"Sonnet builds the screens from the Figma frames and real Storybook components.",
+   tools:["Claude Code","Figma MCP","Storybook MCP","Impeccable hook"], model:"opusplan: Sonnet builds", effort:"medium",
+   why:"Well-scoped building is Sonnet's sweet spot. Figma MCP gives it the design, Storybook MCP our real components. The Impeccable hook flags layout, hierarchy and contrast issues on every edit without calling a model. Go to High effort for complex screens.",
+   own:"Review in the browser, not the diff. No hardcoded colors or spacing, no one-off components."},
+  {n:"3.4", title:"States, interactions and mock data", short:"Fill every state from step 2.1 with realistic mock data kept in fixtures.",
+   tools:["Claude Code"], model:"Sonnet 5.5", effort:"medium",
+   why:"Fills in every state from step 2.1 with realistic fake data, so you test the UI the way users will actually hit it.",
+   own:"Mock data lives in fixtures, clearly separated. No real APIs, no auth, no business logic. That is dev territory."},
+  {n:"3.5", title:"Preview deploy", short:"Push the branch to a preview URL so everyone reviews the same live prototype.",
+   tools:["Claude Code"], model:"Haiku 5.5", effort:"low",
+   why:"Pushing a branch to a preview environment is mechanical. No reason to pay for a bigger model.",
+   own:"Share the URL, not screenshots. Everyone reviews the same live thing."}
+ ]},
+ {id:4, name:"Validate", tag:"Find problems before handoff, not after.", owner:"Owner: Design, PO approves", steps:[
+  {n:"4.1", title:"Visual QA against the design", short:"Audit the UI, then compare the live page with the Figma frame at each breakpoint.",
+   skills:["/visual-qa"], tools:["Claude Code","Claude in Chrome","Impeccable"], model:"Sonnet 5.5", effort:"high",
+   why:"Run /impeccable audit first to catch the mechanical issues. Then Claude compares the live page with the Figma frame across breakpoints. Detail work needs more effort, not a bigger model.",
+   own:"The final eye is yours. Claude still misses subtle spacing and hierarchy problems."},
+  {n:"4.2", title:"Accessibility pass", short:"Run Storybook accessibility tests and Lighthouse, then fix labels, roles, focus and contrast.",
+   tools:["Claude Code"], model:"Sonnet 5.5", effort:"high",
+   why:"Runs Storybook accessibility tests on components and Lighthouse on full pages, then fixes markup: labels, roles, focus order, contrast tokens.",
+   own:"Automated tools only catch part of WCAG. Do the keyboard and screen reader passes yourself."},
+  {n:"4.3", title:"Design system compliance review", short:"Check the feature for one-off styles, wrong variants and token misuse.",
+   skills:["/ds-review"], tools:["Claude Code"], model:"Opus 5.5", effort:"high",
+   why:"Spotting drift (one-off styles, wrong variants, token misuse) takes judgment. The hook already caught the mechanical issues, so this review stays short. Run it once per feature.",
+   own:"Anything that should be a new component goes to the design system backlog and gets a Storybook story, not a one-off in the feature."},
+  {n:"4.4", title:"PO and user review on the live prototype", short:"The PO reviews and approves the working UI instead of a static frame.",
+   tools:["Preview URL","Claude"], model:"Sonnet 5.5", effort:"medium",
+   why:"PO approves a working UI instead of a static frame. Claude summarizes feedback and test notes.",
+   own:"Decision gate. PO approves before handoff. Changes loop back to phase 03.",
+   loop:{text:"PO asks for changes. Back to", to:"3.3"}}
+ ]},
+ {id:5, name:"Handoff and build", tag:"Hand off a pull request, not a Figma link.", owner:"Owner: Dev leads, Design supports", steps:[
+  {n:"5.1", title:"Open the pull request", short:"Open a pull request linked to the work item, with a clear note on what is mocked.",
+   skills:["/handoff"], tools:["Claude Code","Azure DevOps"], model:"Sonnet 5.5", effort:"low",
+   why:"Opens the PR linked to the Azure DevOps work item and writes the description: what is mocked, where real data plugs in, which states are covered, known gaps and open questions.",
+   own:"Link the brief and the Figma file. Be explicit about what you did NOT build."},
+  {n:"5.2", title:"Integration and logic", short:"Developers connect real data and logic, then review and merge every line.",
+   tools:["Dev-owned","Dev's choice"],
+   whyLabel:"What devs own",
+   why:"APIs, data, auth, security, architecture, performance and tests. Devs review and merge every line, including the UI.",
+   own:"Stay close. Answer questions fast so devs don't have to guess."},
+  {n:"5.3", title:"Design QA on staging", short:"Check the integrated build on staging against the approved prototype and file design bugs.",
+   tools:["Claude in Chrome","Azure DevOps"], model:"Sonnet 5.5", effort:"medium",
+   why:"Checks the integrated build against the approved prototype. Real data breaks layouts that mock data didn't. Claude drafts design bugs as Azure DevOps work items with screenshots and repro steps.",
+   own:"Read every bug before Claude files it. Design issues: you fix them in a branch. Logic or data issues: back to devs.",
+   loop:{text:"Design issue on staging: fix in a branch. Back to", to:"3.5"}}
+ ]}
+];
+
+const SKILLS = [
+ {skill:"/start-feature", model:"Sonnet 5.5", effort:"low", text:"Branch from the Azure DevOps work item, load the brief and Figma link. Step 3.1."},
+ {skill:"/plan-build", model:"Opus 5.5", effort:"medium", text:"Map the design to existing Storybook components and flag gaps. Step 3.2."},
+ {skill:"/visual-qa", model:"Sonnet 5.5", effort:"high", text:"Impeccable audit, then compare the live page with Figma. Step 4.1."},
+ {skill:"/ds-review", model:"Opus 5.5", effort:"high", text:"Review the feature for design system drift. Step 4.3."},
+ {skill:"/handoff", model:"Sonnet 5.5", effort:"low", text:"Write the PR description and link the work item. Step 5.1."}
+];
+
+const SETUP = [
+ ["Storybook as the source of truth","For components, with the Storybook MCP connected. Claude reads real component APIs and usage docs instead of guessing, then tests its own output against them. Usage docs are a design job: the MCP is only as good as the guidance in each story (when to use a component, when not to, which variant for what)."],
+ ["Tokens authored in one place","A token file in the repo, synced to both Figma variables and code. Storybook displays tokens; it should not be where they are born."],
+ ["Code Connect","Links Figma components to their coded counterparts, so Figma frames turn into real components."],
+ ["One shared Claude setup","One shared CLAUDE.md, .mcp.json (Storybook, Figma, Azure DevOps) and settings file, plus the five step skills. Owned by design and dev together, versioned in the repo."],
+ ["A clear line between UI code and dev code","Mock data lives in fixtures, so devs can swap in real data without untangling anything."],
+ ["Impeccable (optional, pilot first)","Run /impeccable init, then point its DESIGN.md to Storybook and the token file instead of keeping a separate copy. Turn on the design hook. Leave live mode off."]
+];
+
+const REF = {
+ own: `<div class="cols">
+   <div class="item"><h4>Designers</h4><p>Research and problem framing. Flows, layout, states, interactions and content. UI code on mock data, built with our design system. Visual QA and accessibility of the UI.</p></div>
+   <div class="item"><h4>Developers</h4><p>Logic, APIs and data integration, auth and security, architecture and performance. Reviewing and merging every PR, including the UI code. Final call on anything that reaches production.</p></div>
+   <div class="item"><h4>Together</h4><p>Phase 00 setup: the repo, CLAUDE.md, connectors and Skills, and the design system in code.</p></div>
+ </div>`,
+ model: `<div class="cols two">
+   <div class="item"><h4>Sonnet 5.5: the default</h4><p>Well-scoped writing and UI coding. Most steps below use it. Much cheaper than Opus on long sessions.</p></div>
+   <div class="item"><h4>Opus 5.5: when it needs judgment</h4><p>Ambiguous or high-stakes thinking: research synthesis, planning a build, reviewing for design system drift.</p></div>
+   <div class="item"><h4>Haiku 5.5: mechanical work</h4><p>Repetitive, low-risk tasks: renaming, formatting, preview deploys, bulk content variants.</p></div>
+   <div class="item"><h4>Fable 5.1: not in the playbook</h4><p>Most capable public model and the most expensive per token. Only for a long, hard task where Opus already failed.</p></div>
+ </div>`,
+ effort: `<ul class="plist">
+   ${[["low","Quick, scoped, mechanical."],["medium","Our default. Good for most work and stretches usage."],["high","Complex reasoning, multi-step coding, detail checks."],["xhigh","Long agentic coding sessions. Rarely needed here."],["max","Avoid. Slow, expensive and prone to overthinking."]].map(([k,t])=>`<li>${effortHTML(k)}<p>${t}</p></li>`).join("")}
+ </ul>
+ <div class="rule"><b>The rule</b>Start at Medium. If the answer is shallow, go up one level. If it is wrong because Claude did not know something, fix the context instead (brief, CLAUDE.md, design system docs). More effort will not fix missing context.</div>`,
+ tokens: `<ol class="numbered">
+   <li><b>Plan with Opus, build with Sonnet.</b> The expensive model thinks once, the cheaper one does the long work.</li>
+   <li><b>Pick model and effort per task, not per message.</b> In Claude Code, the opusplan setting moves from Opus to Sonnet for you when planning ends.</li>
+   <li><b>One task per session.</b> Long threads drag old context into every turn.</li>
+   <li><b>Give Claude the brief, not the whole history.</b></li>
+   <li><b>Put rules you keep repeating in CLAUDE.md or a Skill</b> instead of pasting them.</li>
+   <li><b>Asked for the same fix twice?</b> Stop and fix the instructions, not the output.</li>
+ </ol>`,
+ tools: `<ul class="plist">
+   ${[["Claude","Chat, Projects and Research. Thinking, research, synthesis and writing."],
+      ["Claude Design","Fast visual exploration with our design system, shareable prototypes. Now part of Claude chat. The standalone app closes Dec 14, 2026."],
+      ["Claude Code","Builds the prototype in our real stack. Designers use it inside VS Code: plan review, side-by-side diffs, rewind."],
+      ["Figma","Still where detailed design happens. Claude connects through the Figma MCP."],
+      ["Claude in Chrome","Checks the live prototype in a real browser."],
+      ["Dev-owned","Steps developers lead. Tool choice is theirs."],
+      ["Storybook","Source of truth for components. Claude reads it through the Storybook MCP."],
+      ["Azure DevOps","Where the work lives. Claude reads stories and drafts work items and PRs through the Azure DevOps MCP."],
+      ["Impeccable","Optional design skill for Claude Code. Catches generic AI patterns and audits UI quality."]
+     ].map(([n,t])=>`<li><span class="tags"><span class="pill">${n}</span></span><p>${t}</p></li>`).join("")}
+ </ul>`
+};
+
+/* flowchart node details */
+const NODES = {
+ ticket:{title:"Ticket (story) from Project Owner", owner:"Product Owner",
+   text:"The PO writes the user story in Azure DevOps. It is the starting point for the brief and for every step after it.", steps:["1.3"]},
+ scope:{title:"UX Design Lead scopes the feature", owner:"Design",
+   text:"The design lead turns the story into a scoped brief: the problem, the users, constraints and success criteria. Research, flows, states and detailed design in Figma happen here. A PO who asks for changes sends the work back to this step.", steps:["1.1","1.2","1.3","2.1","2.2","2.3"]},
+ proto:{title:"Vibe-code prototype", owner:"Design builds, Dev advises",
+   text:"Claude Code builds the real UI in our stack on mock data. Figma is the single source of truth for the design, and PrimeNG components and tokens supply the building blocks. Both QA failures that are design-related return here.", steps:["3.1","3.2","3.3","3.4"], uses:"Figma: single source of truth. PrimeNG components and tokens."},
+ deploy:{title:"Deploy to Vercel or Azure Static Web App", owner:"Design",
+   text:"The branch goes to a preview environment so everyone reviews the same live URL, not screenshots.", steps:["3.5"]},
+ vqa:{title:"Visual QA: WCAG accessibility (UI related)", owner:"Design",
+   text:"Check the live prototype against the Figma frame, run accessibility checks, and review for design system drift.", steps:["4.1","4.2","4.3"]},
+ qa1:{title:"Visual QA passes?", owner:"Decision",
+   text:"If the prototype does not match the design or fails accessibility checks, fix it in the prototype and deploy again. If it passes, it goes to the PO.", steps:["4.1","4.2","4.3"]},
+ po:{title:"PO/PM approves?", owner:"Decision gate: Product Owner",
+   text:"The PO or PM reviews the working prototype. Nothing is handed to developers before this approval. In this flowchart a No sends the work back to scoping; playbook step 4.4 describes changes looping back to the build (3.3).", steps:["4.4"]},
+ handoff:{title:"Design hands off prototype with placeholder data", owner:"Design",
+   text:"Design opens a pull request with the approved prototype, spelling out what is mocked, where real data plugs in and what was not built.", steps:["5.1"]},
+ integ:{title:"Developer: integration and logic", owner:"Development",
+   text:"Developers connect APIs, data and auth, add tests, and review and merge every line, including the UI code. Figma and PrimeNG components and tokens remain the reference.", steps:["5.2"], uses:"Figma: single source of truth. PrimeNG components and tokens."},
+ qa2:{title:"WCAG/QA passes?", owner:"Decision",
+   text:"Design QA on staging with real data. A design-related failure goes back to the prototype; a development-related failure goes back to integration. If it passes, the ticket closes.", steps:["5.3"]},
+ close:{title:"Close ticket; mark as completed", owner:"End of the flow",
+   text:"The work item is closed and marked completed.", steps:[]}
+};
+
+/* ---------------- helpers ---------------- */
+function effortHTML(k){
+  const n = EFFORT[k]; let d="";
+  for(let i=1;i<=5;i++) d += `<i class="${i<=n?"on":""}"></i>`;
+  return `<span class="effort" role="img" aria-label="${EFFORT_LABEL[k]}">${d}<b>${EFFORT_LABEL[k]}</b></span>`;
+}
+function modelClass(m){
+  if(/opus/i.test(m.replace(/^opusplan:\s*/i,""))) return "opus";
+  if(/sonnet/i.test(m)) return "sonnet";
+  if(/haiku/i.test(m)) return "haiku";
+  return "fable";
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ---------------- render phases ---------------- */
+(function renderPhases(){
+  const mount = document.getElementById("phase-mount");
+  mount.innerHTML = PHASES.map(p=>{
+    const steps = p.steps.map(s=>{
+      const tags = [
+        ...(s.skills||[]).map(k=>`<span class="pill skill">${esc(k)}</span>`),
+        ...s.tools.map(t=>`<span class="pill">${esc(t)}</span>`),
+        s.model?`<span class="pill ${modelClass(s.model)}">${esc(s.model)}</span>`:"",
+        s.effort?effortHTML(s.effort):""
+      ].join("");
+      const loop = s.loop ? `<p class="loop"><b>Loop:</b> ${esc(s.loop.text)} <a href="#s-${s.loop.to.replace(".","-")}">step ${s.loop.to}</a>.</p>` : "";
+      return `<li class="step" id="s-${s.n.replace(".","-")}">
+        <div class="n" aria-hidden="true">${s.n}</div>
+        <div>
+          <h3><span class="sr">Step ${s.n}: </span>${esc(s.title)}</h3>
+          <p class="short">${esc(s.short)}</p>
+          <div class="tags">${tags}</div>
+          <details open>
+            <summary>Why this setup, and what you still own</summary>
+            <div class="two-col">
+              <div><h4>${esc(s.whyLabel||"Why this setup")}</h4><p>${esc(s.why)}</p></div>
+              <div><h4>You still own</h4><p>${esc(s.own)}</p></div>
+            </div>
+          </details>
+          ${loop}
+        </div>
+      </li>`;
+    }).join("");
+    return `<section class="phase" id="phase-${p.id}" aria-labelledby="ph-${p.id}">
+      <div class="phase-head">
+        <div class="big" aria-hidden="true">0${p.id}</div>
+        <div><h2 id="ph-${p.id}"><span class="sr">Phase 0${p.id}: </span>${esc(p.name)}</h2><p>${esc(p.tag)}</p></div>
+        <div class="owner-tag">${esc(p.owner)}</div>
+      </div>
+      <ol class="steps">${steps}</ol>
+    </section>`;
+  }).join("");
+})();
+
+/* ---------------- render setup, skills, reference ---------------- */
+document.getElementById("setup-list").innerHTML = SETUP.map(([a,b])=>`<li><b>${esc(a)}</b><p>${esc(b)}</p></li>`).join("");
+document.getElementById("skill-rows").innerHTML = SKILLS.map(s=>`<div class="skillrow"><div class="tags"><span class="pill skill">${s.skill}</span><span class="pill ${modelClass(s.model)}">${s.model}</span>${effortHTML(s.effort)}</div><p>${esc(s.text)}</p></div>`).join("");
+
+const panelsEl = document.getElementById("panels");
+const KEYS = ["own","model","effort","tokens","tools"];
+panelsEl.innerHTML = KEYS.map((k,i)=>`<div class="panel" role="tabpanel" id="p-${k}" aria-labelledby="tab-${k}" ${i?"hidden":""}>${REF[k]}</div>`).join("");
+
+/* tabs */
+(function tabs(){
+  const btns = KEYS.map(k=>document.getElementById("tab-"+k));
+  function select(i, focus){
+    btns.forEach((b,j)=>{
+      const on = i===j;
+      b.setAttribute("aria-selected", on);
+      b.tabIndex = on?0:-1;
+      document.getElementById("p-"+KEYS[j]).hidden = !on;
+    });
+    if(focus) btns[i].focus();
+  }
+  btns.forEach((b,i)=>{
+    b.addEventListener("click",()=>select(i));
+    b.addEventListener("keydown",e=>{
+      let j=null;
+      if(e.key==="ArrowRight") j=(i+1)%btns.length;
+      if(e.key==="ArrowLeft") j=(i-1+btns.length)%btns.length;
+      if(e.key==="Home") j=0;
+      if(e.key==="End") j=btns.length-1;
+      if(j!==null){e.preventDefault();select(j,true);}
+    });
+  });
+})();
+
+/* expand / collapse */
+document.getElementById("expandAll").addEventListener("click",()=>document.querySelectorAll(".step details").forEach(d=>d.open=true));
+document.getElementById("collapseAll").addEventListener("click",()=>document.querySelectorAll(".step details").forEach(d=>d.open=false));
+
+/* ---------------- flow interactivity ---------------- */
+(function flow(){
+  const svg = document.getElementById("flowSvg");
+  const nodes = [...svg.querySelectorAll(".node")];
+  const edges = [...svg.querySelectorAll(".edge")];
+  const labels = [...svg.querySelectorAll(".elabel")];
+  const $ = id => document.getElementById(id);
+  const byId = Object.fromEntries(nodes.map(n=>[n.dataset.id,n]));
+  const defaultDetail = {title:$("d-title").textContent, owner:$("d-owner").textContent, text:$("d-text").textContent, side:$("d-side").innerHTML};
+  let current = null;
+
+  function labelOf(id){return NODES[id].title}
+  function clear(){
+    current = null;
+    svg.classList.remove("has-sel");
+    [...nodes,...edges,...labels].forEach(e=>e.classList.remove("is-active","is-linked"));
+    $("d-title").textContent = defaultDetail.title;
+    $("d-owner").textContent = defaultDetail.owner;
+    $("d-text").textContent = defaultDetail.text;
+    $("d-side").innerHTML = defaultDetail.side;
+  }
+  function select(id){
+    if(current===id){clear();return;}
+    current = id;
+    svg.classList.add("has-sel");
+    [...nodes,...edges,...labels].forEach(e=>e.classList.remove("is-active","is-linked"));
+    byId[id].classList.add("is-active");
+    const inc=[], out=[];
+    edges.forEach(e=>{
+      const f=e.dataset.from, t=e.dataset.to;
+      if(f===id||t===id){
+        e.classList.add("is-linked");
+        const other = f===id?t:f;
+        byId[other].classList.add("is-linked");
+        const lab = e.dataset.label ? ` (${e.dataset.label})` : "";
+        (f===id?out:inc).push(`${labelOf(other)}${lab}`);
+        labels.forEach(l=>{ if(l.dataset.for===`${f}>${t}`) l.classList.add("is-linked"); });
+      }
+    });
+    const d = NODES[id];
+    $("d-title").textContent = d.title;
+    $("d-owner").textContent = d.owner;
+    $("d-text").textContent = d.text;
+    const li = a=>a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p style="font-size:14px;margin:0" class="muted">None</p>`;
+    $("d-side").innerHTML =
+      (d.steps.length?`<h4>Playbook steps</h4><div class="stepchips">${d.steps.map(s=>`<a href="#s-${s.replace(".","-")}">${s}</a>`).join("")}</div>`:"") +
+      (d.uses?`<h4>Uses</h4><p style="font-size:14px;margin:0">${esc(d.uses)}</p>`:"") +
+      `<h4>Comes from</h4>${li(inc)}<h4>Goes to</h4>${li(out)}`;
+  }
+  nodes.forEach(n=>{
+    n.addEventListener("click",()=>select(n.dataset.id));
+    n.addEventListener("keydown",e=>{
+      if(e.key==="Enter"||e.key===" "){e.preventDefault();select(n.dataset.id);}
+      if(e.key==="Escape") clear();
+    });
+  });
+  svg.addEventListener("click",e=>{ if(e.target===svg || e.target.classList.contains("lane-a") || e.target.classList.contains("lane-b")) clear(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && current) clear(); });
+})();
+
+/* ---------------- scrollspy ---------------- */
+(function spy(){
+  const map = [["flow","#flow"],["board","#board"],["before","#before"],["setup","#setup"],["phases","#phase-1"],["automation","#automation"],["measure","#measure"]];
+  const links = {};
+  document.querySelectorAll("#navlinks a").forEach(a=>links[a.getAttribute("href")]=a);
+  const targets = map.map(([id,href])=>({el:document.getElementById(id),href})).filter(t=>t.el);
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        const t = targets.find(t=>t.el===en.target);
+        Object.values(links).forEach(a=>a.removeAttribute("aria-current"));
+        if(t && links[t.href]) links[t.href].setAttribute("aria-current","true");
+      }
+    });
+  },{rootMargin:"-45% 0px -50% 0px"});
+  targets.forEach(t=>io.observe(t.el));
+})();
+</script>
+</body>
+</html>
